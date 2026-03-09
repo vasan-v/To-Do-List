@@ -3,324 +3,214 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Advanced To-Do List</title>
-
 <style>
+  :root {
+    --primary: #4a90e2;
+    --secondary: #f5f5f5;
+    --accent: #ff6b6b;
+    --text: #333;
+    --completed: #999;
+    --low: #2ecc71;
+    --medium: #f39c12;
+    --high: #e74c3c;
+    --dark-bg: #1e1e1e;
+    --dark-card: #2a2a2a;
+    --dark-text: #f5f5f5;
+  }
 
-:root{
---primary:#4CAF50;
---danger:#ff4757;
---edit:#ffa502;
---bg:#f4f6fb;
---text:#333;
---completed:#888;
-}
+  * { box-sizing: border-box; margin:0; padding:0; font-family: 'Segoe UI', sans-serif; }
+  body { background: var(--secondary); color: var(--text); display:flex; justify-content:center; align-items:flex-start; min-height:100vh; padding:2rem; transition: background 0.3s, color 0.3s; }
+  body.dark { background: var(--dark-bg); color: var(--dark-text); }
 
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial, Helvetica, sans-serif;
-}
+  .todo-container {
+    background: var(--secondary); border-radius:15px; box-shadow:0 8px 20px rgba(0,0,0,0.1); width:100%; max-width:500px; padding:2rem; transition: background 0.3s;
+  }
+  body.dark .todo-container { background: var(--dark-card); }
 
-body{
-background:linear-gradient(120deg,#89f7fe,#66a6ff);
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-}
+  h1 { text-align:center; margin-bottom:1rem; font-size:2rem; }
 
-.container{
-background:white;
-padding:30px;
-width:420px;
-max-width:95%;
-border-radius:15px;
-box-shadow:0 10px 25px rgba(0,0,0,0.2);
-}
+  .input-section { display:flex; gap:0.5rem; margin-bottom:1rem; }
+  .input-section input, .input-section select { flex:1; padding:0.5rem 1rem; border-radius:10px; border:1px solid #ccc; outline:none; transition: all 0.3s; }
+  .input-section input:focus { border-color: var(--primary); }
+  .input-section button { padding:0.5rem 1rem; border:none; border-radius:10px; background: var(--primary); color:#fff; cursor:pointer; transition: transform 0.2s; }
+  .input-section button:hover { transform: scale(1.05); }
 
-h1{
-text-align:center;
-margin-bottom:20px;
-}
+  .task-list { list-style:none; max-height:400px; overflow-y:auto; }
+  .task-item { background:#fff; padding:0.8rem; margin-bottom:0.5rem; border-radius:10px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 4px 8px rgba(0,0,0,0.05); transition: all 0.3s; }
+  body.dark .task-item { background: #3a3a3a; }
+  .task-item.completed { text-decoration: line-through; color: var(--completed); opacity:0.7; }
 
-.input-area{
-display:flex;
-gap:10px;
-margin-bottom:20px;
-}
+  .task-left { display:flex; align-items:center; gap:0.5rem; flex:1; cursor:pointer; }
+  .task-left input[type="checkbox"] { width:18px; height:18px; cursor:pointer; }
+  .task-text { flex:1; }
 
-input{
-flex:1;
-padding:10px;
-border-radius:8px;
-border:1px solid #ccc;
-outline:none;
-}
+  .task-right button { margin-left:0.3rem; border:none; background:none; cursor:pointer; font-size:1rem; transition: transform 0.2s; }
+  .task-right button:hover { transform: scale(1.2); }
 
-button{
-border:none;
-padding:10px 15px;
-border-radius:8px;
-cursor:pointer;
-transition:0.3s;
-}
+  .filters { display:flex; justify-content:space-between; margin:1rem 0; gap:0.5rem; flex-wrap:wrap; }
+  .filters button { flex:1; padding:0.5rem; border:none; border-radius:10px; cursor:pointer; background:#eee; transition: all 0.3s; }
+  body.dark .filters button { background:#444; color:#fff; }
+  .filters button.active { background: var(--primary); color:#fff; }
 
-button:hover{
-transform:scale(1.05);
-}
+  .stats { margin-bottom:1rem; font-size:0.9rem; text-align:center; }
+  .progress-container { background:#eee; border-radius:10px; overflow:hidden; height:10px; margin-bottom:1rem; }
+  .progress-bar { height:100%; width:0%; background: var(--primary); transition: width 0.3s; }
 
-.addBtn{
-background:var(--primary);
-color:white;
-}
+  /* Dark Mode Toggle */
+  .dark-toggle { position:absolute; top:1rem; right:1rem; cursor:pointer; background: var(--primary); color:#fff; padding:0.5rem 1rem; border-radius:10px; }
 
-.filters{
-display:flex;
-justify-content:space-between;
-margin-bottom:15px;
-}
-
-.filters button{
-background:#ddd;
-}
-
-.filters .active{
-background:var(--primary);
-color:white;
-}
-
-ul{
-list-style:none;
-}
-
-li{
-background:#fafafa;
-padding:12px;
-border-radius:8px;
-margin-bottom:10px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
-animation:fadeIn 0.3s ease;
-}
-
-.task-left{
-display:flex;
-align-items:center;
-gap:10px;
-}
-
-.completed span{
-text-decoration:line-through;
-color:var(--completed);
-}
-
-.task-buttons button{
-margin-left:5px;
-color:white;
-}
-
-.delete{
-background:var(--danger);
-}
-
-.edit{
-background:var(--edit);
-}
-
-.task-info{
-display:flex;
-justify-content:space-between;
-margin-top:15px;
-}
-
-.clearBtn{
-background:var(--danger);
-color:white;
-}
-
-@keyframes fadeIn{
-from{
-opacity:0;
-transform:translateY(-5px);
-}
-to{
-opacity:1;
-transform:translateY(0);
-}
-}
-
+  /* Responsive */
+  @media(max-width:600px){
+    .input-section { flex-direction:column; }
+    .input-section button { width:100%; }
+  }
 </style>
-
 </head>
 <body>
 
-<div class="container">
+<button class="dark-toggle">🌙 Dark Mode</button>
 
-<h1>My To-Do List</h1>
+<div class="todo-container">
+  <h1>My To-Do List</h1>
+  <div class="input-section">
+    <input type="text" id="taskInput" placeholder="Add a new task...">
+    <select id="prioritySelect">
+      <option value="low">Low Priority</option>
+      <option value="medium">Medium Priority</option>
+      <option value="high">High Priority</option>
+    </select>
+    <button id="addTaskBtn">Add Task</button>
+  </div>
 
-<div class="input-area">
-<input id="taskInput" placeholder="Enter new task...">
-<button class="addBtn" onclick="addTask()">Add</button>
-</div>
+  <div class="stats">
+    <span id="taskCounter">0 tasks, 0 completed</span>
+    <div class="progress-container">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+  </div>
 
-<div class="filters">
-<button class="active" onclick="setFilter('all')">All</button>
-<button onclick="setFilter('active')">Active</button>
-<button onclick="setFilter('completed')">Completed</button>
-</div>
+  <ul class="task-list" id="taskList"></ul>
 
-<ul id="taskList"></ul>
+  <div class="filters">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="active">Active</button>
+    <button class="filter-btn" data-filter="completed">Completed</button>
+  </div>
 
-<div class="task-info">
-<span id="counter"></span>
-<button class="clearBtn" onclick="clearAll()">Clear All</button>
-</div>
-
+  <input type="text" id="searchInput" placeholder="Search tasks..." style="width:100%; padding:0.5rem; border-radius:10px; border:1px solid #ccc; margin-top:0.5rem; outline:none;">
 </div>
 
 <script>
+  // Elements
+  const taskInput = document.getElementById('taskInput');
+  const addTaskBtn = document.getElementById('addTaskBtn');
+  const taskList = document.getElementById('taskList');
+  const taskCounter = document.getElementById('taskCounter');
+  const progressBar = document.getElementById('progressBar');
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const searchInput = document.getElementById('searchInput');
+  const prioritySelect = document.getElementById('prioritySelect');
+  const darkToggle = document.querySelector('.dark-toggle');
 
-let tasks = JSON.parse(localStorage.getItem("tasks")) || []
-let filter = "all"
+  let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
 
-function saveTasks(){
-localStorage.setItem("tasks",JSON.stringify(tasks))
-}
+  function saveTasks() { localStorage.setItem('tasks', JSON.stringify(tasks)); }
 
-function updateCounter(){
+  function updateStats() {
+    const total = tasks.length;
+    const completed = tasks.filter(t => t.completed).length;
+    taskCounter.textContent = `${total} tasks, ${completed} completed`;
+    progressBar.style.width = total ? `${(completed/total)*100}%` : '0%';
+  }
 
-let completed = tasks.filter(t=>t.completed).length
+  function createTaskElement(task, index) {
+    const li = document.createElement('li');
+    li.className = 'task-item';
+    if(task.completed) li.classList.add('completed');
 
-document.getElementById("counter").innerText =
-`${tasks.length} Tasks / ${completed} Completed`
-}
+    li.innerHTML = `
+      <div class="task-left">
+        <input type="checkbox" ${task.completed ? 'checked' : ''}>
+        <span class="task-text">${task.text}</span>
+        <span style="margin-left:0.5rem; font-size:0.8rem; color:${task.priority==='low'? 'var(--low)':task.priority==='medium'? 'var(--medium)': 'var(--high)'}">[${task.priority}]</span>
+      </div>
+      <div class="task-right">
+        <button class="edit-btn">✏️</button>
+        <button class="delete-btn">🗑️</button>
+      </div>
+    `;
 
-function renderTasks(){
+    // Completion toggle
+    li.querySelector('input[type="checkbox"]').addEventListener('change', () => {
+      task.completed = !task.completed;
+      renderTasks();
+      saveTasks();
+    });
 
-const list = document.getElementById("taskList")
+    // Delete task
+    li.querySelector('.delete-btn').addEventListener('click', () => {
+      tasks.splice(index, 1);
+      renderTasks();
+      saveTasks();
+    });
 
-list.innerHTML=""
+    // Edit task
+    li.querySelector('.edit-btn').addEventListener('click', () => {
+      const newText = prompt('Edit Task:', task.text);
+      if(newText !== null && newText.trim() !== '') {
+        task.text = newText;
+        renderTasks();
+        saveTasks();
+      }
+    });
 
-tasks.forEach((task,index)=>{
+    return li;
+  }
 
-if(filter==="active" && task.completed) return
-if(filter==="completed" && !task.completed) return
+  function renderTasks(filter='all', search='') {
+    taskList.innerHTML = '';
+    tasks.forEach((task, index) => {
+      if(filter === 'active' && task.completed) return;
+      if(filter === 'completed' && !task.completed) return;
+      if(search && !task.text.toLowerCase().includes(search.toLowerCase())) return;
+      taskList.appendChild(createTaskElement(task, index));
+    });
+    updateStats();
+  }
 
-const li = document.createElement("li")
+  addTaskBtn.addEventListener('click', () => {
+    const text = taskInput.value.trim();
+    if(text === '') return;
+    const priority = prioritySelect.value;
+    tasks.push({ text, completed:false, priority });
+    taskInput.value = '';
+    renderTasks(getCurrentFilter(), searchInput.value);
+    saveTasks();
+  });
 
-if(task.completed){
-li.classList.add("completed")
-}
+  // Enter key
+  taskInput.addEventListener('keypress', e => { if(e.key==='Enter') addTaskBtn.click(); });
 
-li.innerHTML = `
-<div class="task-left">
-<input type="checkbox" ${task.completed ? "checked":""}>
-<span>${task.text}</span>
-</div>
+  // Filters
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      renderTasks(btn.dataset.filter, searchInput.value);
+    });
+  });
 
-<div class="task-buttons">
-<button class="edit">Edit</button>
-<button class="delete">Delete</button>
-</div>
-`
+  function getCurrentFilter() { return document.querySelector('.filter-btn.active').dataset.filter; }
 
-const checkbox = li.querySelector("input")
-const editBtn = li.querySelector(".edit")
-const deleteBtn = li.querySelector(".delete")
+  // Search
+  searchInput.addEventListener('input', () => { renderTasks(getCurrentFilter(), searchInput.value); });
 
-checkbox.addEventListener("change",()=>{
-tasks[index].completed = !tasks[index].completed
-saveTasks()
-renderTasks()
-})
+  // Dark mode toggle
+  darkToggle.addEventListener('click', () => { document.body.classList.toggle('dark'); });
 
-deleteBtn.addEventListener("click",()=>{
-tasks.splice(index,1)
-saveTasks()
-renderTasks()
-})
-
-editBtn.addEventListener("click",()=>{
-
-let newText = prompt("Edit Task",task.text)
-
-if(newText){
-tasks[index].text = newText
-saveTasks()
-renderTasks()
-}
-
-})
-
-list.appendChild(li)
-
-})
-
-updateCounter()
-
-}
-
-function addTask(){
-
-const input = document.getElementById("taskInput")
-
-let text = input.value.trim()
-
-if(text==="") return
-
-tasks.push({
-text:text,
-completed:false
-})
-
-input.value=""
-
-saveTasks()
-
-renderTasks()
-
-}
-
-function clearAll(){
-
-tasks=[]
-
-saveTasks()
-
-renderTasks()
-
-}
-
-function setFilter(type){
-
-filter=type
-
-document.querySelectorAll(".filters button")
-.forEach(btn=>btn.classList.remove("active"))
-
-event.target.classList.add("active")
-
-renderTasks()
-
-}
-
-document.getElementById("taskInput")
-.addEventListener("keypress",(e)=>{
-
-if(e.key==="Enter"){
-addTask()
-}
-
-})
-
-renderTasks()
-
+  // Initial render
+  renderTasks();
 </script>
-
 </body>
 </html>
