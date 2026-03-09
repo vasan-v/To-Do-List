@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Advanced To-Do List</title>
+
+<style>
+
+:root{
+--primary:#4CAF50;
+--danger:#ff4757;
+--edit:#ffa502;
+--bg:#f4f6fb;
+--text:#333;
+--completed:#888;
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+background:linear-gradient(120deg,#89f7fe,#66a6ff);
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+.container{
+background:white;
+padding:30px;
+width:420px;
+max-width:95%;
+border-radius:15px;
+box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+h1{
+text-align:center;
+margin-bottom:20px;
+}
+
+.input-area{
+display:flex;
+gap:10px;
+margin-bottom:20px;
+}
+
+input{
+flex:1;
+padding:10px;
+border-radius:8px;
+border:1px solid #ccc;
+outline:none;
+}
+
+button{
+border:none;
+padding:10px 15px;
+border-radius:8px;
+cursor:pointer;
+transition:0.3s;
+}
+
+button:hover{
+transform:scale(1.05);
+}
+
+.addBtn{
+background:var(--primary);
+color:white;
+}
+
+.filters{
+display:flex;
+justify-content:space-between;
+margin-bottom:15px;
+}
+
+.filters button{
+background:#ddd;
+}
+
+.filters .active{
+background:var(--primary);
+color:white;
+}
+
+ul{
+list-style:none;
+}
+
+li{
+background:#fafafa;
+padding:12px;
+border-radius:8px;
+margin-bottom:10px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 6px rgba(0,0,0,0.1);
+animation:fadeIn 0.3s ease;
+}
+
+.task-left{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.completed span{
+text-decoration:line-through;
+color:var(--completed);
+}
+
+.task-buttons button{
+margin-left:5px;
+color:white;
+}
+
+.delete{
+background:var(--danger);
+}
+
+.edit{
+background:var(--edit);
+}
+
+.task-info{
+display:flex;
+justify-content:space-between;
+margin-top:15px;
+}
+
+.clearBtn{
+background:var(--danger);
+color:white;
+}
+
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(-5px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>My To-Do List</h1>
+
+<div class="input-area">
+<input id="taskInput" placeholder="Enter new task...">
+<button class="addBtn" onclick="addTask()">Add</button>
+</div>
+
+<div class="filters">
+<button class="active" onclick="setFilter('all')">All</button>
+<button onclick="setFilter('active')">Active</button>
+<button onclick="setFilter('completed')">Completed</button>
+</div>
+
+<ul id="taskList"></ul>
+
+<div class="task-info">
+<span id="counter"></span>
+<button class="clearBtn" onclick="clearAll()">Clear All</button>
+</div>
+
+</div>
+
+<script>
+
+let tasks = JSON.parse(localStorage.getItem("tasks")) || []
+let filter = "all"
+
+function saveTasks(){
+localStorage.setItem("tasks",JSON.stringify(tasks))
+}
+
+function updateCounter(){
+
+let completed = tasks.filter(t=>t.completed).length
+
+document.getElementById("counter").innerText =
+`${tasks.length} Tasks / ${completed} Completed`
+}
+
+function renderTasks(){
+
+const list = document.getElementById("taskList")
+
+list.innerHTML=""
+
+tasks.forEach((task,index)=>{
+
+if(filter==="active" && task.completed) return
+if(filter==="completed" && !task.completed) return
+
+const li = document.createElement("li")
+
+if(task.completed){
+li.classList.add("completed")
+}
+
+li.innerHTML = `
+<div class="task-left">
+<input type="checkbox" ${task.completed ? "checked":""}>
+<span>${task.text}</span>
+</div>
+
+<div class="task-buttons">
+<button class="edit">Edit</button>
+<button class="delete">Delete</button>
+</div>
+`
+
+const checkbox = li.querySelector("input")
+const editBtn = li.querySelector(".edit")
+const deleteBtn = li.querySelector(".delete")
+
+checkbox.addEventListener("change",()=>{
+tasks[index].completed = !tasks[index].completed
+saveTasks()
+renderTasks()
+})
+
+deleteBtn.addEventListener("click",()=>{
+tasks.splice(index,1)
+saveTasks()
+renderTasks()
+})
+
+editBtn.addEventListener("click",()=>{
+
+let newText = prompt("Edit Task",task.text)
+
+if(newText){
+tasks[index].text = newText
+saveTasks()
+renderTasks()
+}
+
+})
+
+list.appendChild(li)
+
+})
+
+updateCounter()
+
+}
+
+function addTask(){
+
+const input = document.getElementById("taskInput")
+
+let text = input.value.trim()
+
+if(text==="") return
+
+tasks.push({
+text:text,
+completed:false
+})
+
+input.value=""
+
+saveTasks()
+
+renderTasks()
+
+}
+
+function clearAll(){
+
+tasks=[]
+
+saveTasks()
+
+renderTasks()
+
+}
+
+function setFilter(type){
+
+filter=type
+
+document.querySelectorAll(".filters button")
+.forEach(btn=>btn.classList.remove("active"))
+
+event.target.classList.add("active")
+
+renderTasks()
+
+}
+
+document.getElementById("taskInput")
+.addEventListener("keypress",(e)=>{
+
+if(e.key==="Enter"){
+addTask()
+}
+
+})
+
+renderTasks()
+
+</script>
+
+</body>
+</html>
