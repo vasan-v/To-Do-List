@@ -1,0 +1,28 @@
+name: Deploy HTML Project to EC2
+
+# Trigger workflow on push to main branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Step 2: SSH into EC2 and pull latest code
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.EC2_HOST }}      # Your EC2 public IP
+          username: ${{ secrets.EC2_USER }}  # Usually 'ubuntu'
+          key: ${{ secrets.EC2_SSH_KEY }}    # Your private SSH key
+          script: |
+            cd To-Do-List                     # Go to your project folder on EC2
+            git pull origin main              # Pull latest changes
+            echo "Deployment completed ✅"
